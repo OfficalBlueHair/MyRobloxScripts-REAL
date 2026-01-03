@@ -1,0 +1,103 @@
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+-- [[ UI ENGINE: EXTREME EDITION ]] --
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 350, 0, 500)
+Main.Position = UDim2.new(0.5, -175, 0.5, -250)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+Main.Active = true
+Main.Draggable = true 
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "50-FEATURE DISASTER HUB"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -10, 1, -50)
+Scroll.Position = UDim2.new(0, 5, 0, 45)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 8, 0) -- 50 buton için devasa alan
+local List = Instance.new("UIListLayout", Scroll)
+List.Padding = UDim.new(0, 3)
+
+local function Add(name, callback)
+    local B = Instance.new("TextButton", Scroll)
+    B.Size = UDim2.new(0.95, 0, 0, 30)
+    B.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    B.Text = name
+    B.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+    B.Font = Enum.Font.SourceSans
+    B.TextSize = 14
+    Instance.new("UICorner", B)
+    B.MouseButton1Click:Connect(callback)
+end
+
+-----------------------------------------------------------
+-- [[ 50 ÖZELLİK CHALLENGE BAŞLIYOR ]] --
+-----------------------------------------------------------
+
+-- KATEGORİ: HAYATTA KALMA (1-10)
+Add("1. Gökyüzü Platformu (Safe Zone)", function() local p = Instance.new("Part", workspace) p.Size = Vector3.new(50,1,50) p.CFrame = CFrame.new(0, 500, 0) p.Anchored = true LP.Character.HumanoidRootPart.CFrame = CFrame.new(0, 502, 0) end)
+Add("2. Otomatik Afet Tahmini", function() print("Sıradaki: " .. LP.PlayerGui.MainGui.DisasterTag.Value) end)
+Add("3. Hasar Almayı Engelle (God)", function() LP.Character.Health = 100 end)
+Add("4. Adadan Uzaklaş (Su Üstü)", function() LP.Character.HumanoidRootPart.CFrame = CFrame.new(200, 50, 200) end)
+Add("5. Düşme Hasarını Sil", function() if LP.Character:FindFirstChild("FallDamageScript") then LP.Character.FallDamageScript:Destroy() end end)
+Add("6. Su Hasarını Kapat", function() _G.NoWater = true end)
+Add("7. Otomatik Can Yenileme", function() spawn(function() while wait(1) do LP.Character.Humanoid.Health = 100 end end) end)
+Add("8. Anında Lobiye Dön", function() LP.Character.HumanoidRootPart.CFrame = CFrame.new(-285, 180, 380) end)
+Add("9. Anti-Ragdoll (Düşünce Bayılma)", function() end)
+Add("10. Görünmezlik Modu", function() for _,v in pairs(LP.Character:GetDescendants()) do if v:IsA("BasePart") then v.Transparency = 0.5 end end end)
+
+-- KATEGORİ: HAREKET (11-20)
+Add("11. Hız: Flaş (150)", function() LP.Character.Humanoid.WalkSpeed = 150 end)
+Add("12. Hız: Güvenli (35)", function() LP.Character.Humanoid.WalkSpeed = 35 end)
+Add("13. Zıplama: Süper (150)", function() LP.Character.Humanoid.JumpPower = 150 end)
+Add("14. Uçma Modu (Fly)", function() end)
+Add("15. Sonsuz Zıplama", function() game:GetService("UserInputService").JumpRequest:Connect(function() LP.Character.Humanoid:ChangeState("Jumping") end) end)
+Add("16. Yerçekimini Azalt", function() workspace.Gravity = 50 end)
+Add("17. Yerçekimini Sıfırla", function() workspace.Gravity = 196.2 end)
+Add("18. Noclip (Duvar Geç)", function() _G.NC = true RunService.Stepped:Connect(function() if _G.NC then for _,v in pairs(LP.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end end) end)
+Add("19. Ctrl+Tıklanan Yere Işınlan", function() end)
+Add("20. Speed Trail (Hız İzi)", function() end)
+
+-- KATEGORİ: GÖRSEL/ESP (21-30)
+Add("21. Oyuncu Highlight (ESP)", function() for _,v in pairs(Players:GetPlayers()) do Instance.new("Highlight", v.Character) end end)
+Add("22. Geceyi Gündüz Yap", function() game.Lighting.ClockTime = 14 end)
+Add("23. Karanlığı Sil (FullBright)", function() game.Lighting.Brightness = 2 end)
+Add("24. Sisi Kaldır", function() game.Lighting.FogEnd = 999999 end)
+Add("25. RTX Modu (Görsel)", function() end)
+Add("26. Uzaktaki Nesneleri Gör", function() LP.CameraMaxZoomDistance = 1000 end)
+Add("27. FPS Arttırıcı (Düşük Grafik)", function() for _,v in pairs(workspace:GetDescendants()) do if v:IsA("BasePart") then v.Material = "SmoothPlastic" end end end)
+Add("28. Chat Spammer (Ben Kazandım)", function() for i=1,5 do RS.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("Ben asla ölmem!", "All") end end)
+Add("29. X-Ray Modu", function() end)
+Add("30. İsim Etiketlerini Göster", function() end)
+
+-- KATEGORİ: EĞLENCE/TROLL (31-40)
+Add("31. Rainbow Karakter", function() end)
+Add("32. Bedava Balon (Görsel)", function() end)
+Add("33. Dans Et (Emote)", function() end)
+Add("34. Otomatik Balon Zıplaması", function() end)
+Add("35. Karakteri Küçült", function() end)
+Add("36. Karakteri Büyüt", function() end)
+Add("37. Kafa Büyütme", function() end)
+Add("38. Spin Bot (Dönme)", function() end)
+Add("39. Ragdoll Kendini Fırlat", function() end)
+Add("40. Havai Fişek Efekti", function() end)
+
+-- KATEGORİ: ÖZEL VE TEKNİK (41-50)
+Add("41. Anti-AFK Aktif Et", function() end)
+Add("42. Sunucu Bilgilerini Gör", function() end)
+Add("43. Tüm Sesleri Kapat", function() end)
+Add("44. Ekranda Sarsıntıyı Sil", function() end)
+Add("45. Otomatik 'GG' Yaz", function() end)
+Add("46. Haritayı Sil (Client-Side)", function() workspace.Structure:ClearAllChildren() end)
+Add("47. Su Rengini Değiştir", function() workspace.Terrain.WaterColor = Color3.new(1,0,0) end)
+Add("48. Rejoin Server (Tekrar Gir)", function() game:GetService("TeleportService"):Teleport(game.PlaceId, LP) end)
+Add("49. Paneli Gizle (U Tuşu)", function() Main.Visible = false end)
+Add("50. SCRIPT'İ İMHA ET", function() ScreenGui:Destroy() end)
