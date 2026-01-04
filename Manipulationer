@@ -1,0 +1,1134 @@
+-- [[ MANIPULATOR PHASE 1: THE ANATOMICAL SYMBOL ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase1"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 150
+local Scale = 1.5 -- Başlangıç büyüklüğü
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, -125, 0.7, 0)
+Main.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 1: THE SHAFT"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+Title.Font = Enum.Font.GothamBold
+
+-- ANATOMİK HESAPLAMA (3 BÖLGELİ)
+local function GetAnatomyPos(index, total)
+    local t = tick()
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local s = Scale
+
+    -- 1. Bölge: Testisler (Parçaların %30'u)
+    if index < total * 0.3 then
+        local side = (index % 2 == 0) and -1 or 1
+        local angle = (index / (total * 0.3)) * math.pi * 2 + t
+        return cf * Vector3.new(
+            (math.cos(angle) * 4 * s) + (side * 5 * s), -- Yanlara yayılma
+            math.sin(angle) * 4 * s, 
+            -15 * s
+        )
+    
+    -- 2. Bölge: Gövde (Shaft) (Parçaların %50'si)
+    elseif index < total * 0.8 then
+        local progress = (index - total * 0.3) / (total * 0.5)
+        local sway = math.sin(t * 2 + progress * 5) * 0.5 * s -- Hafif sallanma
+        return cf * Vector3.new(
+            sway, 
+            (progress * 25 * s), -- Uzunluk
+            -15 * s
+        )
+
+    -- 3. Bölge: Baş Kısım (Tip) (Parçaların %20'si)
+    else
+        local angle = (index / (total * 0.2)) * math.pi * 2 + t
+        return cf * Vector3.new(
+            math.cos(angle) * 5 * s, -- Daha geniş uç
+            (25 * s) + math.sin(angle) * 3 * s, 
+            -15 * s
+        )
+    end
+end
+
+-- FİZİK MOTORU
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetAnatomyPos(count, 60) -- 60 parça hedefi
+                v.Velocity = (target - v.Position) * 40
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(60, 0, 0); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("AKTIF ET", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "DURDUR" or "AKTIF ET"
+    Main.TextButton.BackgroundColor3 = Active and Color3.fromRGB(150,0,0) or Color3.fromRGB(0,150,0)
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30); RangeBox.TextColor3 = Color3.new(1,1,1)
+RangeBox.Text = "MENZIL: 150"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 150
+    RangeBox.Text = "MENZIL: " .. Range
+end)
+
+CreateBtn("BÜYÜKLÜK ARTIR", UDim2.new(0, 15, 0, 150), function()
+    Scale = Scale + 0.5
+end)
+
+print("🏆 Phase 1/10 Yüklendi. Sembol: Anatomik Shaft.")
+-- [[ MANIPULATOR PHASE 2: THE OCCULT PENTAGRAM ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase2"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 200
+local Scale = 2.0 -- Yıldızın genişliği
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, 130, 0.7, 0) -- Phase 1'in yanına konumlandırdım
+Main.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 2: PENTAGRAM"
+Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+Title.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+Title.Font = Enum.Font.SpecialElite
+
+-- PENTAGRAM HESAPLAMA (Yıldız + Çember)
+local function GetPentagramPos(index, total)
+    local t = tick()
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local s = Scale * 10
+
+    -- 1. Bölge: Dış Çember (Parçaların %40'ı)
+    if index < total * 0.4 then
+        local angle = (index / (total * 0.4)) * math.pi * 2 + t
+        return cf * Vector3.new(math.cos(angle) * s * 1.2, math.sin(angle) * s * 1.2, -20)
+    
+    -- 2. Bölge: İç Yıldız (Parçaların %60'ı)
+    else
+        -- Yıldızın 5 köşesi arasındaki çizgileri oluşturmak için modülo aritmetiği
+        local starIndex = index - (total * 0.4)
+        local starTotal = total * 0.6
+        local step = (starIndex / starTotal) * 5
+        local p1 = math.floor(step)
+        local p2 = (p1 + 2) % 5 -- Yıldız çizim sırası (0 -> 2 -> 4 -> 1 -> 3)
+        
+        local function getPoint(p)
+            local a = (p / 5) * math.pi * 2 - math.pi/2
+            return Vector3.new(math.cos(a) * s, math.sin(a) * s, -20)
+        end
+        
+        local pos1 = getPoint(p1)
+        local pos2 = getPoint(p2)
+        local lerpVal = step - p1
+        
+        return cf * pos1:Lerp(pos2, lerpVal)
+    end
+end
+
+-- FİZİK DÖNGÜSÜ
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetPentagramPos(count, 80) -- 80 parça hedefi
+                v.Velocity = (target - v.Position) * 45
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(50, 0, 0); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("PENTAGRAM AKTIF", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "DURDUR" or "AKTIF ET"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20); RangeBox.TextColor3 = Color3.new(1,0,0)
+RangeBox.Text = "MENZIL: 200"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 200
+    RangeBox.Text = "MENZIL: " .. Range
+end)
+
+CreateBtn("BOYUTU AYARLA", UDim2.new(0, 15, 0, 150), function()
+    Scale = Scale + 0.5
+    if Scale > 5 then Scale = 1 end
+end)
+
+print("👺 Phase 2/10 Yüklendi. Sembol: Occult Pentagram.")
+-- [[ MANIPULATOR PHASE 3: THE DOUBLE HELIX DNA ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase3"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 250
+local Scale = 1.5 -- Genişlik
+local HeightScale = 2 -- Yükseklik çarpanı
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, -385, 0.7, 0) -- Phase 1 ve 2'nin soluna konumlandırdım
+Main.BackgroundColor3 = Color3.fromRGB(0, 20, 40)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 3: DNA HELIX"
+Title.TextColor3 = Color3.fromRGB(0, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(0, 40, 80)
+Title.Font = Enum.Font.Code
+
+-- DNA HELIX HESAPLAMA (Çift Sarmallı 3D Yapı)
+local function GetDNAPos(index, total)
+    local t = tick() * 2 -- Dönüş hızı
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local radius = 8 * Scale
+    local verticalSpacing = 1.2 * HeightScale
+    
+    -- Parçaları iki gruba ayırıyoruz (Sol sarmal ve Sağ sarmal)
+    local side = (index % 2 == 0) and 0 or math.pi -- 180 derece fark
+    local progress = index / 2
+    local angle = (progress * 0.5) + t + side
+    
+    local x = math.cos(angle) * radius
+    local z = math.sin(angle) * radius
+    local y = progress * verticalSpacing - (total * 0.25) -- Ortalamak için
+    
+    return cf * Vector3.new(x, y, z - 20)
+end
+
+-- FİZİK MOTORU
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetDNAPos(count, 100) -- Daha fazla parça kapasitesi
+                v.Velocity = (target - v.Position) * 35
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(0, 60, 100); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("DNA AKTIF", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "DURDUR" or "AKTIF ET"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(10, 30, 50); RangeBox.TextColor3 = Color3.new(0,1,1)
+RangeBox.Text = "MENZIL: 250"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 250
+    RangeBox.Text = "MENZIL: " .. Range
+end)
+
+CreateBtn("SARMALI GENİŞLET", UDim2.new(0, 15, 0, 150), function()
+    Scale = Scale + 0.5
+    if Scale > 4 then Scale = 1 end
+end)
+
+print("🧬 Phase 3/10 Yüklendi. Sembol: Double Helix DNA.")
+-- [[ MANIPULATOR PHASE 4: THE 3D HOLLOW CUBE ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase4"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 300
+local Size = 1.5 -- Küpün büyüklüğü
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, -125, 0.45, 0) -- Ekranın üst-orta kısmına
+Main.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 4: 3D CUBE"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+Title.Font = Enum.Font.GothamBold
+
+-- KÜP YÜZEY HESAPLAMA
+local function GetCubePos(index, total)
+    local t = tick()
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local s = 10 * Size
+    
+    -- Parçaları 6 yüzeye ayır (Her yüzey için eşit parça)
+    local face = index % 6
+    local step = (index / total) * 2 - 1 -- -1 ile 1 arası değer
+    local offset1 = math.sin(step * math.pi) * s
+    local offset2 = math.cos(step * math.pi) * s
+
+    -- Rotasyon matrisi (Küpün kendi ekseninde dönmesi için)
+    local rot = CFrame.fromEulerAnglesXYZ(t, t/2, 0)
+    local targetPos = Vector3.new(0, 0, 0)
+
+    if face == 0 then targetPos = Vector3.new(s, offset1, offset2)     -- Sağ
+    elseif face == 1 then targetPos = Vector3.new(-s, offset1, offset2)    -- Sol
+    elseif face == 2 then targetPos = Vector3.new(offset1, s, offset2)     -- Üst
+    elseif face == 3 then targetPos = Vector3.new(offset1, -s, offset2)    -- Alt
+    elseif face == 4 then targetPos = Vector3.new(offset1, offset2, s)     -- Ön
+    elseif face == 5 then targetPos = Vector3.new(offset1, offset2, -s)    -- Arka
+    end
+
+    return cf * (rot * targetPos - Vector3.new(0, 0, 15))
+end
+
+-- FİZİK MOTORU
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetCubePos(count, 120) -- 120 parça sınırı
+                v.Velocity = (target - v.Position) * 40
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(80, 80, 80); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("KÜPÜ AKTİFLEŞTİR", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "KÜPÜ DURDUR" or "KÜPÜ AKTİFLEŞTİR"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20); RangeBox.TextColor3 = Color3.new(1,1,1)
+RangeBox.Text = "MENZİL: 300"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 300
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("KÜPÜ GENİŞLET", UDim2.new(0, 15, 0, 150), function()
+    Size = Size + 0.5
+    if Size > 5 then Size = 1 end
+end)
+
+print("📦 Phase 4/10 Yüklendi. Sembol: Perfect 3D Cube.")
+-- [[ MANIPULATOR PHASE 5: THE ATOMIC RINGS ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase5"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 350
+local Speed = 2 -- Dönüş hızı
+local Scale = 1.5 -- Yörünge çapı
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, 130, 0.45, 0) -- Küpün (Phase 4) yanına
+Main.BackgroundColor3 = Color3.fromRGB(0, 40, 20)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 5: ATOMIC RING"
+Title.TextColor3 = Color3.fromRGB(0, 255, 100)
+Title.BackgroundColor3 = Color3.fromRGB(0, 60, 30)
+Title.Font = Enum.Font.Code
+
+-- ATOMİK YÖRÜNGE HESAPLAMA
+local function GetAtomicPos(index, total)
+    local t = tick() * Speed
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local r = 12 * Scale
+    
+    -- Parçaları 3 ana yörüngeye bölüyoruz
+    local ring = index % 3
+    local angle = (index / (total / 3)) * math.pi * 2 + t
+    
+    local targetPos = Vector3.new(0, 0, 0)
+
+    if ring == 0 then -- Yatay Yörünge (X-Z)
+        targetPos = Vector3.new(math.cos(angle) * r, 2, math.sin(angle) * r)
+    elseif ring == 1 then -- Dikey Yörünge 1 (Y-Z)
+        targetPos = Vector3.new(2, math.cos(angle) * r, math.sin(angle) * r)
+    elseif ring == 2 then -- Dikey Yörünge 2 (X-Y)
+        targetPos = Vector3.new(math.cos(angle) * r, math.sin(angle) * r, 2)
+    end
+
+    -- Hafif bir yalpalama ekleyerek daha dinamik görünmesini sağlıyoruz
+    local wobble = CFrame.fromEulerAnglesXYZ(math.sin(t*0.5), math.cos(t*0.5), 0)
+    return cf * (wobble * targetPos - Vector3.new(0, 0, 10))
+end
+
+-- FİZİK MOTORU
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetAtomicPos(count, 90)
+                v.Velocity = (target - v.Position) * 45
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(0, 80, 40); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("ATOMU ÇALIŞTIR", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "ENERJİYİ KES" or "ATOMU ÇALIŞTIR"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(10, 20, 10); RangeBox.TextColor3 = Color3.new(0,1,0)
+RangeBox.Text = "MENZİL: 350"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 350
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("YÖRÜNGEYİ GENİŞLET", UDim2.new(0, 15, 0, 150), function()
+    Scale = Scale + 0.5
+    if Scale > 5 then Scale = 1 end
+end)
+
+print("⚛️ Phase 5/10 Yüklendi. Sembol: Atomic Rings.")
+-- [[ MANIPULATOR PHASE 6: THE SHIELD WALL ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase6"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 400
+local Width = 5 -- Genişlik çarpanı
+local Height = 4 -- Yükseklik çarpanı
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, -385, 0.45, 0) -- DNA Panelinin üstüne
+Main.BackgroundColor3 = Color3.fromRGB(50, 50, 0)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 6: SHIELD WALL"
+Title.TextColor3 = Color3.fromRGB(255, 255, 0)
+Title.BackgroundColor3 = Color3.fromRGB(70, 70, 0)
+Title.Font = Enum.Font.GothamBold
+
+-- KALKAN DUVARI HESAPLAMA
+local function GetShieldPos(index, total)
+    local t = tick()
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    
+    -- Matris dizilimi (Örn: 10x10)
+    local columns = 8
+    local col = index % columns
+    local row = math.floor(index / columns)
+    
+    -- Kavisli (curved) efekt vermek için sinüs kullanıyoruz
+    local x = (col - columns/2) * (4 * Width)
+    local y = (row) * (4 * Height) - 5
+    local z = -15 - (math.abs(col - columns/2) * 2) -- Kenarlar daha geride durur (kavis)
+    
+    -- Duvarın hafifçe nefes alıyormuş gibi öne arkaya gitmesi
+    local breathe = math.sin(t * 2) * 2
+    
+    return cf * Vector3.new(x, y, z + breathe)
+end
+
+-- FİZİK DÖNGÜSÜ
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetShieldPos(count, 64) -- 64 parça (8x8 duvar)
+                v.Velocity = (target - v.Position) * 40
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(90, 90, 0); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("KALKANI AKTİFLE", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "KALKANI İNDİR" or "KALKANI AKTİFLE"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(30, 30, 0); RangeBox.TextColor3 = Color3.new(1,1,1)
+RangeBox.Text = "MENZİL: 400"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 400
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("KALKANI GENİŞLET", UDim2.new(0, 15, 0, 150), function()
+    Width = Width + 1
+    Height = Height + 0.5
+    if Width > 15 then Width = 5 Height = 4 end
+end)
+
+print("🛡️ Phase 6/10 Yüklendi. Sembol: Shield Wall.")
+-- [[ MANIPULATOR PHASE 7: THE BLACK HOLE ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase7"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 500
+local SuctionPower = 50 -- Çekim gücü
+local ChaosLevel = 1 -- Kaos çarpanı
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, -125, 0.2, 0) -- Ekranın en üst orta kısmına
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 7: BLACK HOLE"
+Title.TextColor3 = Color3.fromRGB(150, 0, 255)
+Title.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+Title.Font = Enum.Font.SpecialElite
+
+-- KARA DELİK HESAPLAMA (VORTEX)
+local function GetBlackHolePos(index, total)
+    local t = tick() * 10
+    local p = LP.Character.HumanoidRootPart.Position
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    
+    -- Parçalar merkeze ne kadar yakınsa o kadar hızlı döner
+    local radius = (index / total) * (5 * ChaosLevel)
+    local angle = t + (index * 0.5)
+    
+    -- Rastgele sarsıntı (Glitch efekti)
+    local shake = Vector3.new(
+        math.random(-1, 1) * 0.5,
+        math.random(-1, 1) * 0.5,
+        math.random(-1, 1) * 0.5
+    )
+    
+    local x = math.cos(angle) * radius
+    local y = math.sin(t * 0.5) * 2
+    local z = math.sin(angle) * radius
+    
+    return p + Vector3.new(x, y, z) + shake
+end
+
+-- FİZİK DÖNGÜSÜ
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetBlackHolePos(count, 150) -- 150 parça kapasitesi
+                -- Kara delik çekim kuvveti (Hız vektörü)
+                v.Velocity = (target - v.Position) * SuctionPower
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(40, 0, 60); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("OLAY UFKUNU AÇ", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "KARA DELİĞİ KAPAT" or "OLAY UFKUNU AÇ"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(10, 0, 20); RangeBox.TextColor3 = Color3.new(0.6, 0, 1)
+RangeBox.Text = "MENZİL: 500"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 500
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("KAOSU ARTIR", UDim2.new(0, 15, 0, 150), function()
+    ChaosLevel = ChaosLevel + 1
+    if ChaosLevel > 10 then ChaosLevel = 1 end
+    SuctionPower = 50 + (ChaosLevel * 5)
+end)
+
+print("🕳️ Phase 7/10 Yüklendi. Sembol: The Black Hole.")
+-- [[ MANIPULATOR PHASE 8: THE MECHANICAL SPIDER ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase8"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 450
+local LegLength = 1.5 -- Bacak uzunluğu çarpanı
+local Spread = 1 -- Yayılma genişliği
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, 130, 0.2, 0) -- Kara deliğin (Phase 7) yanına
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 8: SPIDER LEGS"
+Title.TextColor3 = Color3.fromRGB(200, 200, 200)
+Title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Title.Font = Enum.Font.Antique
+
+-- ÖRÜMCEK BACAK HESAPLAMA (4 BACAKLI SİSTEM)
+local function GetSpiderLegPos(index, total)
+    local t = tick()
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local rootPos = LP.Character.HumanoidRootPart.Position
+    
+    -- Parçaları 4 bacağa ayırıyoruz
+    local legNum = index % 4
+    local progress = (index / total) * 4 -- Her bacak için 0 ile 1 arası ilerleme
+    
+    -- Bacak açıları (Çapraz çıkışlar)
+    local angles = {
+        math.rad(45),   -- Sağ Ön
+        math.rad(135),  -- Sol Ön
+        math.rad(225),  -- Sol Arka
+        math.rad(-45)   -- Sağ Arka
+    }
+    
+    local angle = angles[legNum + 1]
+    local s = 15 * LegLength
+    
+    -- Bacak Kavis Formülü (Eklemli görünüm için Parabol)
+    local x = math.cos(angle) * (progress * s * Spread)
+    local z = math.sin(angle) * (progress * s * Spread)
+    local y = (math.sin(progress * math.pi) * 8) - (progress * 12) -- Yere doğru kavis
+    
+    -- Yürüme simülasyonu (Hafif hareket)
+    local walkCycle = math.sin(t * 5 + legNum * math.pi) * 2
+    
+    return cf * Vector3.new(x, y + walkCycle, z)
+end
+
+-- FİZİK DÖNGÜSÜ
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetSpiderLegPos(count, 80) -- 80 parça (Bacak başına 20 parça)
+                v.Velocity = (target - v.Position) * 40
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(40, 40, 40); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("ÖRÜMCEĞİ UYANDIR", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "BACAKLARI ÇEK" or "ÖRÜMCEĞİ UYANDIR"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25); RangeBox.TextColor3 = Color3.new(1,1,1)
+RangeBox.Text = "MENZİL: 450"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 450
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("BACAKLARI UZAT", UDim2.new(0, 15, 0, 150), function()
+    LegLength = LegLength + 0.5
+    Spread = Spread + 0.2
+    if LegLength > 5 then LegLength = 1 Spread = 1 end
+end)
+
+print("🕷️ Phase 8/10 Yüklendi. Sembol: Mechanical Spider Legs.")
+-- [[ MANIPULATOR PHASE 9: THE SKY STAIRWAY ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase9"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 600
+local PlatformSize = 1.5 -- Genişlik
+local LiftPower = 1 -- Yükseklik çarpanı
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.5, -385, 0.2, 0) -- Örümcek bacaklarının (Phase 8) soluna
+Main.BackgroundColor3 = Color3.fromRGB(0, 50, 50)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "PHASE 9: SKY STAIRWAY"
+Title.TextColor3 = Color3.fromRGB(0, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(0, 30, 30)
+Title.Font = Enum.Font.Antique
+
+-- GÖKYÜZÜ MERDİVENİ HESAPLAMA
+local function GetStairPos(index, total)
+    local t = tick()
+    local p = LP.Character.HumanoidRootPart.Position
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    
+    -- Izgara (Grid) düzeninde ayak altında toplama
+    local side = math.ceil(math.sqrt(total))
+    local x = (index % side - side/2) * (6 * PlatformSize)
+    local z = (math.floor(index / side) - side/2) * (6 * PlatformSize)
+    
+    -- Sen hareket ettikçe parçaların hafifçe geriden gelmesi (Takip efekti)
+    local moveOffset = LP.Character.Humanoid.MoveDirection * -5
+    
+    -- Ayaklarının tam altında, hafifçe kavisli bir zemin
+    local y = -3.5 + (math.sin(t + index*0.1) * 0.5)
+    
+    return cf * Vector3.new(x + moveOffset.X, y, z + moveOffset.Z)
+end
+
+-- FİZİK DÖNGÜSÜ
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = true -- BU MODDA PARÇALARIN ÜSTÜNE BASABİLMEN İÇİN COLLIDE AÇIK
+                local target = GetStairPos(count, 49) -- 7x7 platform
+                
+                -- Parçaları ayak altına kilitlerken sarsıntıyı azaltmak için yüksek güç
+                v.Velocity = (target - v.Position) * 50
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(0, 80, 80); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("YOLU İNŞA ET", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "YOLU YOK ET" or "YOLU İNŞA ET"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(0, 20, 20); RangeBox.TextColor3 = Color3.new(0, 1, 1)
+RangeBox.Text = "MENZİL: 600"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 600
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("PLATFORMU GENİŞLET", UDim2.new(0, 15, 0, 150), function()
+    PlatformSize = PlatformSize + 0.5
+    if PlatformSize > 4 then PlatformSize = 1 end
+end)
+
+print("🪜 Phase 9/10 Yüklendi. Sembol: Sky Stairway.")
+-- [[ MANIPULATOR PHASE 10: THE ULTIMATE GOD-MODE CROWN & AURA ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+
+-- ÖLÜNCE SİLİNMEYEN GUI
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "Manipulator_Phase10"
+ScreenGui.ResetOnSpawn = false
+
+-- DEĞİŞKENLER
+local Active = false
+local Range = 1000 -- Maksimum Menzil
+local AuraSize = 2 -- Aura büyüklüğü
+local RotationSpeed = 3 -- Dönüş hızı
+
+-- ANA PANEL
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 220)
+Main.Position = UDim2.new(0.5, 130, 0.7, 0) -- Phase 2'nin yanına
+Main.BackgroundColor3 = Color3.fromRGB(30, 0, 30)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "FINAL PHASE: GOD MODE"
+Title.TextColor3 = Color3.fromRGB(255, 215, 0) -- Altın Sarısı
+Title.BackgroundColor3 = Color3.fromRGB(50, 0, 50)
+Title.Font = Enum.Font.Antique
+
+-- TANRI MODU HESAPLAMA (TAÇ + AURA)
+local function GetGodModePos(index, total)
+    local t = tick() * RotationSpeed
+    local cf = LP.Character.HumanoidRootPart.CFrame
+    local headPos = LP.Character.Head.Position
+    
+    -- 1. Bölge: Tanrı Tacı (Parçaların %20'si)
+    if index < total * 0.2 then
+        local angle = (index / (total * 0.2)) * math.pi * 2 + t
+        local radius = 5 * AuraSize
+        return cf * Vector3.new(math.cos(angle) * radius, 8 + math.sin(t*2), math.sin(angle) * radius)
+    
+    -- 2. Bölge: Devasa Arka Aura (Parçaların %80'i)
+    else
+        local auraIndex = index - (total * 0.2)
+        local auraTotal = total * 0.8
+        local angle = (auraIndex / auraTotal) * math.pi * 2
+        local dist = 15 * AuraSize
+        
+        -- Kanat benzeri dalgalanma efekti
+        local wave = math.sin(t + (auraIndex * 0.1)) * 5
+        local x = math.cos(angle) * dist
+        local y = math.sin(angle) * dist + 10
+        local z = 10 + wave -- Arkada durması için
+        
+        return cf * Vector3.new(x, y, z)
+    end
+end
+
+-- FİZİK DÖNGÜSÜ
+RS.Stepped:Connect(function()
+    if not Active or not LP.Character then return end
+    local count = 0
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and not v.Anchored and not v:IsDescendantOf(LP.Character) then
+            local dist = (v.Position - LP.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= Range then
+                count = count + 1
+                v.CanCollide = false
+                local target = GetGodModePos(count, 150) -- 150 parça ile devasa görünüm
+                v.Velocity = (target - v.Position) * 45
+            end
+        end
+    end
+end)
+
+-- KONTROLLER
+local function CreateBtn(txt, pos, cb)
+    local b = Instance.new("TextButton", Main)
+    b.Text = txt; b.Size = UDim2.new(0, 220, 0, 35); b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(70, 0, 70); b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold; b.MouseButton1Click:Connect(cb)
+    Instance.new("UICorner", b)
+end
+
+CreateBtn("İLAHİ GÜCÜ AÇ", UDim2.new(0, 15, 0, 50), function()
+    Active = not Active
+    Main.TextButton.Text = Active and "GÜCÜ MÜHÜRLE" or "İLAHİ GÜCÜ AÇ"
+end)
+
+local RangeBox = Instance.new("TextBox", Main)
+RangeBox.Size = UDim2.new(0, 220, 0, 35); RangeBox.Position = UDim2.new(0, 15, 0, 100)
+RangeBox.BackgroundColor3 = Color3.fromRGB(20, 0, 20); RangeBox.TextColor3 = Color3.new(1, 0.8, 0)
+RangeBox.Text = "MENZİL: 1000"; RangeBox.Font = Enum.Font.Code
+RangeBox.FocusLost:Connect(function()
+    Range = tonumber(RangeBox.Text:match("%d+")) or 1000
+    RangeBox.Text = "MENZİL: " .. Range
+end)
+
+CreateBtn("AURAYI GENİŞLET", UDim2.new(0, 15, 0, 150), function()
+    AuraSize = AuraSize + 0.5
+    if AuraSize > 6 then AuraSize = 1 end
+end)
+
+print("👑 Phase 10/10 Yüklendi. Final Sembolü: God-Mode Crown & Aura.")
+-- [[ MANIPULATOR BONUS: JERKING SYSTEM ]] --
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("RunService")
+local Backpack = LP:WaitForChild("Backpack")
+
+-- GUI'ye Yeni Bölüm Ekleme
+local ScreenGui = LP.PlayerGui:FindFirstChild("Manipulator_Phase10") or Instance.new("ScreenGui", LP.PlayerGui)
+local Main = ScreenGui:FindFirstChild("Frame") or Instance.new("Frame", ScreenGui)
+
+-- DEĞİŞKENLER
+local JerkingActive = false
+local TargetPart = nil
+
+-- JERK TOOL OLUŞTURMA
+local JerkTool = Instance.new("Tool")
+JerkTool.Name = "Jerk"
+JerkTool.RequiresHandle = false
+JerkTool.Parent = Backpack
+
+-- JERK KULLANILDIĞINDA
+JerkTool.Activated:Connect(function()
+    JerkingActive = not JerkingActive
+    print(JerkingActive and "Jerking Başladı" or "Jerking Durdu")
+end)
+
+-- ÖZEL PARÇA KONTROLÜ VE ANİMASYON
+RS.Stepped:Connect(function()
+    if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
+    
+    -- Küçük bir unanchored parça bul ve bacak arasına sabitle
+    if not TargetPart or not TargetPart.Parent then
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and not v.Anchored and v.Size.Magnitude < 10 and not v:IsDescendantOf(LP.Character) then
+                TargetPart = v
+                break
+            end
+        end
+    end
+
+    if TargetPart and TargetPart.Parent then
+        local cf = LP.Character.HumanoidRootPart.CFrame
+        local animOffset = Vector3.new(0, 0, 0)
+        
+        if JerkingActive then
+            -- İleri-Geri Hareket Animasyonu (Z ekseninde)
+            local speed = 15
+            local distance = 1.2
+            animOffset = Vector3.new(0, -1, -1 + math.sin(tick() * speed) * distance)
+            
+            -- Karakter kolları için ufak bir görsel hareket (Opsiyonel)
+            LP.Character.Animate.idle.Animation1.AnimationId = "rbxassetid://180435533" -- Örnek hareketli ID
+        else
+            -- Sabit duruş (Bacak arası)
+            animOffset = Vector3.new(0, -1, -1)
+        end
+        
+        TargetPart.CanCollide = false
+        TargetPart.Velocity = ((cf * animOffset) - TargetPart.Position) * 40
+        TargetPart.CFrame = cf * CFrame.new(animOffset) * CFrame.Angles(math.rad(90), 0, 0)
+    end
+end)
+
+-- GUI BUTONU
+local BonusBtn = Instance.new("TextButton", Main)
+BonusBtn.Size = UDim2.new(0, 220, 0, 35)
+BonusBtn.Position = UDim2.new(0, 15, 0, 185) -- Phase 10 panelinin altına ekler
+BonusBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 0)
+BonusBtn.Text = "JERKING MODE: OFF"
+BonusBtn.TextColor3 = Color3.new(1,1,1)
+BonusBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", BonusBtn)
+
+BonusBtn.MouseButton1Click:Connect(function()
+    if not LP.Backpack:FindFirstChild("Jerk") and not LP.Character:FindFirstChild("Jerk") then
+        JerkTool.Parent = Backpack
+        BonusBtn.Text = "JERKING MODE: READY"
+        BonusBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    else
+        BonusBtn.Text = "JERK TOOL ENVANTERDE"
+    end
+end)
+
+print("🔞 Jerking Bonus Modu Yüklendi. Envanterindeki Jerk eşyasını kullan.")
